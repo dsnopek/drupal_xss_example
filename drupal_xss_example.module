@@ -14,7 +14,6 @@ function drupal_xss_example_menu() {
     'access callback' => TRUE,
     'page callback' => 'drupal_xss_example_exploit_page',
     'type' => MENU_CALLBACK,
-    'file path' => drupal_get_path('module', 'drupal_xss_example'),
     'file' => 'drupal_xss_example.pages.inc',
   );
   $items['drupal_xss_example/callback'] = array(
@@ -22,8 +21,27 @@ function drupal_xss_example_menu() {
     'access callback' => TRUE,
     'page callback' => 'drupal_xss_example_callback_page',
     'type' => MENU_CALLBACK,
-    'file path' => drupal_get_path('module', 'drupal_xss_example'),
+    'file' => 'drupal_xss_example.pages.inc',
+  );
+  $items['admin/reports/drupal_xss_example'] = array(
+    'title' => 'Messages from exploited sites',
+    'description' => 'View a list of events that have recently come from exploited sites.',
+    'access arguments' => array('access drupal_xss_example exploited sites report'),
+    'page callback' => 'drupal_xss_example_report_page',
+    'type' => MENU_NORMAL_ITEM,
     'file' => 'drupal_xss_example.pages.inc',
   );
   return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function drupal_xss_example_permission() {
+  return array(
+    'access drupal_xss_exmaple exploited sites report' => array(
+      'title' => t('Access the "Exploited sites" report'),
+      'description' => t('Allows users to access the "Exploited sites" report with information sent from exploited sites.'),
+    ),
+  );
 }
