@@ -1,0 +1,4 @@
+name = Example XSS exploit
+description = An example XSS exploit that targets Drupal sites.
+core = 7.x
+dependencies[] = dblog
