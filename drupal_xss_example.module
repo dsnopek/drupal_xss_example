@@ -4,3 +4,26 @@
  * Code for Example XSS module.
  */
 
+/**
+ * Implements hook_menu().
+ */
+function drupal_xss_example_menu() {
+  $items = array();
+  $items['drupal_xss_example/exploit.js'] = array(
+    'title' => 'Example XSS script',
+    'access callback' => TRUE,
+    'page callback' => 'drupal_xss_example_exploit_page',
+    'type' => MENU_CALLBACK,
+    'file path' => drupal_get_path('module', 'drupal_xss_example'),
+    'file' => 'drupal_xss_example.pages.inc',
+  );
+  $items['drupal_xss_example/callback'] = array(
+    'title' => 'Server callback',
+    'access callback' => TRUE,
+    'page callback' => 'drupal_xss_example_callback_page',
+    'type' => MENU_CALLBACK,
+    'file path' => drupal_get_path('module', 'drupal_xss_example'),
+    'file' => 'drupal_xss_example.pages.inc',
+  );
+  return $items;
+}
